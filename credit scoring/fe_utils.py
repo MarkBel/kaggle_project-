@@ -72,7 +72,7 @@ def interpl_targ(df: pd.DataFrame) -> None:
 
 def pad_history(df:pd.DataFrame, max_len:int=41) -> None:
     """
-
+    get padding in payment history 
     """
     padded_payments = []
     
