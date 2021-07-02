@@ -5,6 +5,9 @@ from typing import List
 warnings.filterwarnings(action="ignore")
 
 def extract_payd_period(x: List) -> List:
+    """
+    extract period between 2 payments
+    """
     lst = []
     for i in range(1, len(x)):
         delta = (x[i] - x[i - 1]).days
@@ -12,6 +15,9 @@ def extract_payd_period(x: List) -> List:
     return lst
 
 def extract_delay_day(x: List) -> int:
+    """
+    extract how many days are overdue during the loan
+    """
     count = 0
     for i in x:
         if i > 31:
@@ -19,6 +25,9 @@ def extract_delay_day(x: List) -> int:
     return count
 
 def extract_amount_delays(x: List) -> int:
+    """
+    extract how many delays in payment 
+    """
     count = 0
     for i in x:
         if i > 31:
@@ -26,6 +35,9 @@ def extract_amount_delays(x: List) -> int:
     return count
 
 def extract_amount_early(x: List) -> int:
+    """
+    extract how much did pay more often than once a month 
+    """
     count = 0
     for i in x:
         if i < 28:
@@ -33,6 +45,9 @@ def extract_amount_early(x: List) -> int:
     return count
 
 def extract_amount_intime(x: List) -> int:
+    """
+    extract how much did you pay on time 
+    """
     count = 0
     for i in x:
         if i > 27 and i < 32:
@@ -40,6 +55,9 @@ def extract_amount_intime(x: List) -> int:
     return count
 
 def interpl_targ(df: pd.DataFrame) -> None:
+    """
+    interpolation of target by simple rules
+    """
     window = 2
     df["ExpectedTermDate"] = pd.to_datetime(df["ExpectedTermDate"]) + pd.to_timedelta(pd.np.ceil(df.Term*window), unit="D")
     df["LastPaymentDate"] = pd.to_datetime(df["LastPaymentDate"]).dt.tz_localize(None)
@@ -53,7 +71,9 @@ def interpl_targ(df: pd.DataFrame) -> None:
     
 
 def pad_history(df:pd.DataFrame, max_len:int=41) -> None:
-    
+    """
+
+    """
     padded_payments = []
     
     for r in df.copy().iterrows():
@@ -71,14 +91,23 @@ def pad_history(df:pd.DataFrame, max_len:int=41) -> None:
 
 
 def create_extra_features(df: pd.DataFrame) -> None:
+    """
+    count of nans
+    """
     df['NANs_cnt'] = df.isnull().sum(axis = 1)
     
 def create_col_with_min_freq(data, col, min_freq = 10):
+    """
+    cluster rare catetories in col
+    """
     data[col + '_fixed'] = data[col].astype(str)
     data.loc[data[col + '_fixed'].value_counts()[data[col + '_fixed']].values < min_freq, col + '_fixed'] = "RARE_VALUE"
     data.replace({'nan': np.nan}, inplace = True)
 
 def create_gr_feats(data,cat_cols,num_cols):
+    """
+    get statistics over cat_cols
+    """
     for cat_col in cat_cols:
         create_col_with_min_freq(data, cat_col, 25)
         for num_col in num_col:
