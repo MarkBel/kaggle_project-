@@ -89,12 +89,6 @@ def pad_history(df:pd.DataFrame, max_len:int=41) -> None:
     
     df["PaymentsHistory"] = padded_payments
 
-
-def create_extra_features(df: pd.DataFrame) -> None:
-    """
-    count of nans
-    """
-    df['NANs_cnt'] = df.isnull().sum(axis = 1)
     
 def create_col_with_min_freq(data, col, min_freq = 10):
     """
@@ -110,7 +104,7 @@ def create_gr_feats(data,cat_cols,num_cols):
     """
     for cat_col in cat_cols:
         create_col_with_min_freq(data, cat_col, 25)
-        for num_col in num_col:
+        for num_col in num_cols:
             for n, f in [('mean', np.mean), ('min', np.nanmin), ('max', np.nanmax)]:
                 data['FIXED_' + n + '_' + num_col + '_by_' + cat_col] = data.groupby(cat_col + '_fixed')[num_col].transform(f)
     for col in cat_cols+num_cols:
