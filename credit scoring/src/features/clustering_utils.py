@@ -4,7 +4,7 @@ from sklearn.decomposition import PCA
 from sklearn.cluster import KMeans
 
 
-def preprecess_data(df:pd.DataFrame) -> None:
+def preprocess_data_with_scaler(df:pd.DataFrame) -> None:
     """
     get metadata
     return preprocessed metadata
