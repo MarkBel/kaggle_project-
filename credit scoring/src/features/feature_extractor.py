@@ -26,6 +26,7 @@ def create_features(df: pd.DataFrame) -> pd.DataFrame:
     df['max_payment'] = df['PaymentsHistory'].apply(lambda x:np.max(x))
     df['median_payment'] = df['PaymentsHistory'].apply(lambda x:np.median(x))
     df['min_payment'] = df['PaymentsHistory'].apply(lambda x:np.min(x))
+    #TODO Think on calculation of different deltas between dates
     interpl_targ(df)
     pad_history(df)
     return df
