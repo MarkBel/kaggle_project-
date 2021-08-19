@@ -25,7 +25,6 @@ def create_features(df: pd.DataFrame) -> pd.DataFrame:
     df['median_payment'] = df['PaymentsHistory'].apply(lambda x:np.median(x))
     df['min_payment'] = df['PaymentsHistory'].apply(lambda x:np.min(x))
     df['sum_payment'] = df['PaymentsHistory'].apply(lambda x:sum(x))
-
     df['RegisteredInLeapYear'] = df['RegistrationDate'].dt.is_leap_year.astype('float')
     df['RegisteredAtMonthStart'] = df['RegistrationDate'].dt.is_month_start.astype('float')
     df['RegisteredAtMonthEnd'] = df['RegistrationDate'].dt.is_month_end.astype('float')
@@ -34,7 +33,6 @@ def create_features(df: pd.DataFrame) -> pd.DataFrame:
     df['Reg_Duratation'] = (datetime.now() - df['RegistrationDate']).dt.days
     df['was_upsell'] = df['UpsellDate'].apply(lambda x: 1 if not pd.isnull(x) else 0)
     df['diff_real_expect'] = (df['Term'] -df['real_duratation'])
-
     interpl_targ(df)
     pad_history(df)
 
