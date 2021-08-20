@@ -9,4 +9,5 @@ category_encoders==2.2.2 # Latest cat features processor
 pandasql==0.7.3 #SQL frame querying\
 altair==4.1.0 # Declarative visualizations
 xgboost==1.4.2 # Modelling outside of the sklearn scope
-pip install lightgbm==3.2.1
+lightgbm==3.2.1
+evidently==0.1.21.dev0
