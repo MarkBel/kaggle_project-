@@ -11,7 +11,8 @@ from category_encoders.james_stein import JamesSteinEncoder
 from category_encoders.one_hot import OneHotEncoder
 from sklearn.preprocessing import StandardScaler
 from boostaroota import BoostARoota
-from visualize import process_data_per_feature_type, generate_drift_report
+# from visualize import process_data_per_feature_type, generate_drift_report
+from feature_generator import FeatureGenerator
 
 
 
@@ -233,6 +234,9 @@ if __name__ == '__main__':
             # .pipe(generate_col_with_sql_with_merge, filter='Female', created_name='Count_per_cat_female')
             # .pipe(pipe_process_monitoring, step=7)
     )
+
+    feature_generator = FeatureGenerator()
+    feature_generator.build_knn(df_meta)
 
     ###### Evidently Data Drift report generation
     generate_drift_report(process_data_per_feature_type(df_meta_train_preprocessed),20000)
