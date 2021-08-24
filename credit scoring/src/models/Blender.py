@@ -1,11 +1,11 @@
-import app_logger
+
 from typing import List, Any
 import pandas as pd
 from sklearn.model_selection import train_test_split
-import sys
 from numpy import hstack
-
+import sys
 sys.path.insert(0, 'src/logger/')
+import app_logger
 
 logger = app_logger.SimpleLogger(
     'Blender', 'Blender.log').get_logger()
@@ -30,13 +30,13 @@ class Blander():
             meta_data.append(y_oof)
 
         meta_data = hstack(meta_data)
-        
+
         if self.usage_data:
             for i in len(meta_data):
                 x_val[f'new_cols_{i}'] = meta_data[i]
-            self.metamodel.fit(x_val,y_val)
+            self.metamodel.fit(x_val, y_val)
         else:
-            self.metamodel.fit(meta_data,y_val)
+            self.metamodel.fit(meta_data, y_val)
         return None
 
     def predict(self, test_data: pd.DataFrame):
@@ -48,8 +48,9 @@ class Blander():
             meta_prediction.append(y_pred)
 
         meta_prediction = hstack(meta_prediction)
-        
+
         if self.usage_data:
             for i in len(meta_prediction):
                 test_data[f'new_cols_{i}'] = meta_prediction[i]
             return self.metamodel.predict(test_data)
+        return self.metamodel.predict(meta_prediction)
