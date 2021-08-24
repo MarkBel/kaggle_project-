@@ -1,14 +1,15 @@
-from typing import Tuple
 from sklearn.metrics import confusion_matrix, roc_auc_score, f1_score, precision_score, recall_score, mean_absolute_error, mean_squared_error, mean_squared_log_error
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
-from typing import Dict, Tuple, Any
+from typing import Dict, Tuple, Any,Callable
 import sys
 sys.path.insert(0, 'src/logger/')
 import app_logger
 
+logger = app_logger.SimpleLogger(
+    'cust_metrics', 'cust_metrics.log').get_logger()
 
 
 class CustomMetrics():
@@ -16,12 +17,12 @@ class CustomMetrics():
     generates model quality report 
     """
 
-    def __init__(self, labels: np.array, custom_metric: function = None,) -> None:
+    def __init__(self, labels: np.array, custom_metric: Callable = None,) -> None:
         """
 
         Args:
             labels (np.array):  classes labels 
-            custom_metric (function, optional): optional custom metric. Defaults to None.
+            custom_metric (Callable, optional): optional custom metric. Defaults to None.
         """
         self.custom_metric = custom_metric
         self.labels = labels
@@ -36,23 +37,33 @@ class CustomMetrics():
             bound (float, optional): classification threshold. Defaults to 0.5.
             average (str, optional): this parameter is required for multiclass/multilabel targets. Defaults to "binary".
         """
+        try:
+            assert y_true.shape == y_pred.shape
+        except AssertionError:
+            logger.error(f"y true array {y_true.shape} shape doesn't equal to y pred {y_pred.shape} array shape")
+            
+        try:
+            assert  bound > 0 and bound <= 1
+        except AssertionError:
+            logger.error(f"bound must be between 0 and 1, value of bound of {bound}")
 
-        print("F1 score ", f1_score(y_true=y_true, y_pred=(
+        logger.info("Working classification metrics output")
+        logger.info("F1 score ", f1_score(y_true=y_true, y_pred=(
             y_pred > bound).astype(int), average=average))
 
-        print("AUC score ", roc_auc_score(
+        logger.info("AUC score ", roc_auc_score(
             y_true=y_true, y_pred=(y_pred > bound).astype(int), average=average))
 
-        print("Precision score ", precision_score(
+        logger.info("Precision score ", precision_score(
             y_true=y_true, y_pred=(y_pred > bound).astype(int), average=average))
 
-        print("Recall score ", recall_score(
+        logger.info("Recall score ", recall_score(
             y_true=y_true, y_pred=(y_pred > bound).astype(int), average=average))
 
-        print(f"{self.custom_metric.__name__} score ",
+        logger.info(f"{self.custom_metric.__name__} score ",
               self.custom_metric(y_true, y_pred))
 
-        self.confusion_matrix_display(y_true, y_pred, self.labels)
+        self.__confusion_matrix_display(y_true, y_pred, self.labels)
 
     def output_reg_metrics(self, y_true: np.array, y_pred: np.array) -> None:
         """
@@ -61,17 +72,22 @@ class CustomMetrics():
             y_true (np.array): true label of the data with shape (nsamples,)
             y_pred (np.array): predicted label of the data with shape (nsamples,)
         """
+        try:
+            assert y_true.shape == y_pred.shape
+        except AssertionError:
+            logger.error(f"y true array {y_true.shape} shape doesn't equal to y pred {y_pred.shape} array shape")
 
-        print("mae score ", mean_absolute_error(
+        logger.info("Working regression metrics output")
+        logger.info("mae score ", mean_absolute_error(
             y_true=y_true, y_pred=y_pred))
 
-        print("mse score ", mean_squared_error(
+        logger.info("mse score ", mean_squared_error(
             y_true=y_true, y_pred=y_pred))
 
-        print(f"{self.custom_metric.__name__} score ",
+        logger.info(f"{self.custom_metric.__name__} score ",
               self.custom_metric(y_true, y_pred))
 
-    def confusion_matrix_display(self, y_true: np.array, y_pred: np.array, ymap: Dict[Any] = None, figsize: Tuple[int] = (5, 5)) -> None:
+    def __confusion_matrix_display(self, y_true: np.array, y_pred: np.array, ymap: Dict[Any,Any] = None, figsize: Tuple[int,int] = (5, 5)) -> None:
         """
             Gemerate matrix plot of confusion matrix
         Args:
@@ -83,6 +99,7 @@ class CustomMetrics():
                                         Defaults to None.
             figsize (Tuple[int], optional): the size of the figure plotted. Defaults to (5, 5).
         """
+        logger.info("Confusion matrix is calculating")
         if ymap is not None:
             y_pred = [ymap[yi] for yi in y_pred]
             y_true = [ymap[yi] for yi in y_true]
@@ -110,3 +127,5 @@ class CustomMetrics():
         _, ax = plt.subplot(figsize=figsize)
         sns.heatmap(cm, annot=annot, fmt="", ax=ax, cmap="Greens")
         plt.show()
+
+        return None
