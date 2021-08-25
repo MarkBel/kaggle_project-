@@ -1,29 +1,48 @@
 from sklearn.decomposition import PCA, TruncatedSVD
 import numpy as np
 from keras.callbacks import EarlyStopping, ReduceLROnPlateau
-from keras.layers import Dense, Activation, Dropout, Flatten
-from keras.models import Sequential, Input, Model
+from keras.layers import Dense
+from keras.models import Input, Model
 from sklearn.model_selection import train_test_split
 import pandas as pd
 from umap import UMAP
-import app_logger
+from typing import Any
 import sys
 sys.path.insert(0, 'src/logger/')
-
+import app_logger
 
 logger = app_logger.SimpleLogger(
     'FeatureSelector', 'feature_selection.log').get_logger()
 
 
 class Feature_Selector():
+    """
+    class with implementation of feature selection models
+    """
 
-    def __init__(self, train: pd.DataFrame, test: pd.DataFrame, y: pd.DataFrame, method: str, output_dim: int, file_path: str) -> None:
+    def __init__(self, train: pd.DataFrame, test: pd.DataFrame, y: Any, method: str, output_dim: int, file_path: str) -> None:
+        """conscructor of  class
+
+        Args:
+            train (pd.DataFrame): dataframe with train data
+            test (pd.DataFrame): dataframe with test data
+            y (Any): dataframe if multiout task and series if sigleout task of target data
+            method (str): 
+            output_dim (int): final dimensions of dataset
+            file_path (str): path to csv file to save result
+        """
         self.train = train
         self.method = method
         self.output_dim = output_dim
         self.file_path = file_path
 
     def __create_autoencoder_model(self) -> Model:
+        """
+        create autoencoder for reduce dimensions
+
+        Returns:
+            Model: initialization of autoencoder
+        """
         logger.info("initialization AE")
         encoder_layer_shapes = [512, 256, 128, 256, 128, 64, self.output_dim]
 
@@ -40,6 +59,12 @@ class Feature_Selector():
         return model
 
     def __build_autoencoder_fit(self) -> Model:
+        """
+        compile autoencoder model
+
+        Returns:
+            Model: compiled autoencoder model
+        """
         logger.info("Training AE")
         autoencoder = self.__create_autoencoder_model()
         train, test, y_train, y_test = train_test_split(
@@ -63,6 +88,13 @@ class Feature_Selector():
         return autoencoder
 
     def AE_selector(self,) -> None:
+        """
+        get reduced dataframe from autoencoder model,
+        save result to csv file
+
+        Returns:
+            None
+        """
         logger.info("Predicting AE and Save to csv")
         autoencoder = self.__build_autoencoder_fit()
         model_bn = Model(autoencoder.input, autoencoder.layers[6].output)
@@ -73,6 +105,13 @@ class Feature_Selector():
         return None
 
     def PCA_selector(self,) -> None:
+        """
+        get reduced dataframe from PCA model,
+        save result to csv file
+
+        Returns:
+            None
+        """
         logger.info("Training AE and Save result to csv")
         pca = PCA(n_components=self.output_dim)
         pca.fit(self.train)
@@ -85,6 +124,13 @@ class Feature_Selector():
         return None
 
     def Umap_selector(self,) -> None:
+        """
+        get reduced dataframe from Umap model,
+        save result to csv file
+
+        Returns:
+            None
+        """
         umap = UMAP(n_components=self.output_dim)
         umap.fit(self.train)
         np.totxt("train_"+self.file_path,
@@ -95,6 +141,13 @@ class Feature_Selector():
         return None
 
     def SVD_selector(self,) -> None:
+        """        
+        get reduced dataframe from SVD model,
+        save result to csv file
+
+        Returns:
+            None
+        """
         svd = TruncatedSVD(n_components=self.output_dim, n_iter=10)
         svd.fit(self.train)
 
